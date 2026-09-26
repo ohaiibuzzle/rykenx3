@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RK-X3 Meter</title>
+  <meta name="description" content="Live dashboard and CSV logger for the RYKEN RK-X3 USB power meter (WebHID).">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23151a21'/%3E%3Cpath d='M18 4 8 18h7l-2 10 11-15h-7z' fill='%23f5b83d'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M18 4 8 18h7l-2 10 11-15h-7z"/></svg>
+      <div>
+        <h1>RK-X3 Meter</h1>
+        <p id="device-info" class="muted">Not connected</p>
+      </div>
+    </div>
+    <div class="status">
+      <span id="status-dot" class="dot"></span>
+      <span id="status-text">Idle</span>
+    </div>
+    <div class="actions">
+      <button id="btn-connect" class="primary">Connect meter</button>
+      <button id="btn-disconnect" hidden>Disconnect</button>
+    </div>
+  </header>
+
+  <div id="banner" class="banner" hidden></div>
+
+  <main>
+    <section class="cards">
+      <article class="card" style="--accent: var(--volt)">
+        <h2>Voltage</h2>
+        <p class="big"><span id="v-now">–</span><small>V</small></p>
+        <p class="minmax">min <span id="v-min">–</span> · max <span id="v-max">–</span></p>
+      </article>
+      <article class="card" style="--accent: var(--amp)">
+        <h2>Current</h2>
+        <p class="big"><span id="i-now">–</span><small>A</small></p>
+        <p class="minmax">min <span id="i-min">–</span> · max <span id="i-max">–</span></p>
+      </article>
+      <article class="card" style="--accent: var(--watt)">
+        <h2>Power</h2>
+        <p class="big"><span id="p-now">–</span><small>W</small></p>
+        <p class="minmax">avg <span id="p-avg">–</span> · peak <span id="p-max">–</span></p>
+      </article>
+      <article class="card" style="--accent: var(--energy)">
+        <h2>Session energy</h2>
+        <p class="big"><span id="e-now">–</span><small id="e-unit">mWh</small></p>
+        <p class="minmax"><span id="c-now">–</span> · <span id="elapsed">00:00:00</span></p>
+      </article>
+    </section>
+
+    <section class="panel chart-panel">
+      <div class="panel-head">
+        <h2>Live charts</h2>
+        <div class="seg" id="window-select" role="group" aria-label="Chart time window">
+          <button data-window="30">30 s</button>
+          <button data-window="120" class="on">2 min</button>
+          <button data-window="600">10 min</button>
+          <button data-window="3600">1 h</button>
+          <button data-window="0">All</button>
+        </div>
+      </div>
+      <div id="charts" class="charts">
+        <div class="chart" data-key="v"><span class="chart-label" style="color: var(--volt)">Voltage (V)</span><canvas></canvas></div>
+        <div class="chart" data-key="i"><span class="chart-label" style="color: var(--amp)">Current (A)</span><canvas></canvas></div>
+        <div class="chart" data-key="p"><span class="chart-label" style="color: var(--watt)">Power (W)</span><canvas></canvas></div>
+        <div id="tooltip" class="tooltip" hidden></div>
+      </div>
+    </section>
+
+    <section class="grid3">
+      <article class="panel">
+        <div class="panel-head"><h2>Data lines</h2></div>
+        <table class="lines">
+          <tbody>
+            <tr><th>D+</th><td id="dp">–</td><td><div class="bar" style="--c: var(--data)"><i id="dp-bar"></i></div></td><td></td></tr>
+            <tr><th>D−</th><td id="dm">–</td><td><div class="bar" style="--c: var(--data)"><i id="dm-bar"></i></div></td><td></td></tr>
+            <tr><th>CC1</th><td id="cc1">–</td><td><div class="bar" style="--c: var(--cc)"><i id="cc1-bar"></i></div></td><td id="cc1-state" class="muted"></td></tr>
+            <tr><th>CC2</th><td id="cc2">–</td><td><div class="bar" style="--c: var(--cc)"><i id="cc2-bar"></i></div></td><td id="cc2-state" class="muted"></td></tr>
+          </tbody>
+        </table>
+        <p class="note">CC label = current advertised by the source (USB-C sink-side voltage ranges).</p>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head">
+          <h2>Session</h2>
+          <button id="btn-reset" class="small">Reset</button>
+        </div>
+        <dl class="stats">
+          <dt>Duration</dt><dd id="s-elapsed">–</dd>
+          <dt>Charge</dt><dd id="s-charge">–</dd>
+          <dt>Energy</dt><dd id="s-energy">–</dd>
+          <dt>Avg / peak power</dt><dd id="s-power">–</dd>
+          <dt>Voltage range</dt><dd id="s-vrange">–</dd>
+          <dt>Current range</dt><dd id="s-irange">–</dd>
+          <dt>Temperature (raw)</dt><dd id="s-temp">–</dd>
+          <dt>Phone power</dt><dd id="s-phone">–</dd>
+          <dt>Frames / rate</dt><dd id="s-frames">–</dd>
+        </dl>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head"><h2>CSV logging</h2><span id="rec-badge" class="badge" hidden>REC</span></div>
+        <label class="field">
+          <span>Row interval</span>
+          <select id="rec-interval">
+            <option value="0">Every frame (~167/s)</option>
+            <option value="0.1">0.1 s</option>
+            <option value="0.2" selected>0.2 s</option>
+            <option value="0.5">0.5 s</option>
+            <option value="1">1 s</option>
+            <option value="5">5 s</option>
+          </select>
+        </label>
+        <dl class="stats compact">
+          <dt>Rows</dt><dd id="rec-rows">0</dd>
+          <dt>Duration</dt><dd id="rec-time">–</dd>
+          <dt>Energy</dt><dd id="rec-energy">–</dd>
+          <dt>Size</dt><dd id="rec-size">0 KB</dd>
+        </dl>
+        <div class="row">
+          <button id="btn-rec" class="primary" disabled>Start recording</button>
+          <button id="btn-download" disabled>Download CSV</button>
+          <button id="btn-discard" class="small ghost" disabled>Discard</button>
+        </div>
+        <p class="note">Ah/Wh in the CSV count from when recording starts. Data stays in this tab until you download it.</p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="muted">
+    Requires a Chromium browser with WebHID (Chrome, Edge, Opera on desktop).
+  </footer>
+
+  <script src="protocol.js" defer></script>
+  <script src="app.js" defer></script>
+</body>
+</html>

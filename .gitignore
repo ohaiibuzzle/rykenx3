@@ -1,0 +1,23 @@
+# Reverse-engineering material: vendor binaries and IDA databases (not redistributable)
+re/
+*.exe
+*.i64
+*.idb
+*.id0
+*.id1
+*.id2
+*.nam
+*.til
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Logs written by python/ryken.py
+ryken_*.csv
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
