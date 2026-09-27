@@ -108,7 +108,7 @@ const Ryken = (() => {
         const w = { cmd, resolve };
         w.timer = setTimeout(() => {
           this._waiters.splice(this._waiters.indexOf(w), 1);
-          reject(new Error('The meter did not answer the handshake.'));
+          reject(Object.assign(new Error('The meter did not answer the handshake.'), { code: 'no-answer' }));
         }, ms);
         this._waiters.push(w);
       });
@@ -165,11 +165,12 @@ const Ryken = (() => {
       if (status === 1) {
         const e = new Error('The meter is in use by another program (the RYKEN app, a script or another tab), '
           + 'or a previous session did not disconnect cleanly.');
+        e.code = 'in-use';
         e.busy = true;
         throw e;
       }
       if (sig !== crc16([status, ...mcu, ...sn, ...ts])) {
-        throw new Error('Handshake signature mismatch.');
+        throw Object.assign(new Error('Handshake signature mismatch.'), { code: 'bad-signature' });
       }
       await this.send(CMD.CLAIM, [...new TextEncoder().encode('ready'), sig >> 8, sig & 0xff]);
       this.claimed = true;

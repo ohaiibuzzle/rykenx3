@@ -6,6 +6,16 @@
   <title>RK-X3 Meter</title>
   <meta name="description" content="Live dashboard and CSV logger for the RYKEN RK-X3 USB power meter (WebHID).">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23151a21'/%3E%3Cpath d='M18 4 8 18h7l-2 10 11-15h-7z' fill='%23f5b83d'/%3E%3C/svg%3E">
+  <script>
+    // apply saved theme/palette before first paint
+    try {
+      const d = document.documentElement;
+      const theme = localStorage.getItem('ryken.theme');
+      const palette = localStorage.getItem('ryken.palette');
+      if (theme === 'light' || theme === 'dark') d.dataset.theme = theme;
+      if (palette === 'cb' || palette === 'hc') d.dataset.palette = palette;
+    } catch (_) { /* storage unavailable */ }
+  </script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,7 +23,7 @@
     <div class="brand">
       <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M18 4 8 18h7l-2 10 11-15h-7z"/></svg>
       <div>
-        <h1>RK-X3 Meter</h1>
+        <h1 data-i18n="app.title">RK-X3 Meter</h1>
         <p id="device-info" class="muted">Not connected</p>
       </div>
     </div>
@@ -22,59 +32,80 @@
       <span id="status-text">Idle</span>
     </div>
     <div class="actions">
-      <button id="btn-connect" class="primary">Connect meter</button>
-      <button id="btn-disconnect" hidden>Disconnect</button>
+      <button id="btn-connect" class="primary" data-i18n="btn.connect">Connect meter</button>
+      <button id="btn-disconnect" data-i18n="btn.disconnect" hidden>Disconnect</button>
+      <details id="settings" class="settings">
+        <summary class="icon-btn" data-i18n-title="settings.title" data-i18n-aria-label="settings.title">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+        </summary>
+        <div class="menu">
+          <p class="menu-label" data-i18n="settings.theme">Theme</p>
+          <div class="choices" data-setting="theme">
+            <button data-value="system" data-i18n="theme.system">System</button>
+            <button data-value="light" data-i18n="theme.light">Light</button>
+            <button data-value="dark" data-i18n="theme.dark">Dark</button>
+          </div>
+          <p class="menu-label" data-i18n="settings.palette">Colors</p>
+          <div class="choices" data-setting="palette">
+            <button data-value="default" data-i18n="palette.default">Default</button>
+            <button data-value="cb" data-i18n="palette.cb">Colorblind-safe</button>
+            <button data-value="hc" data-i18n="palette.hc">High contrast</button>
+          </div>
+          <p class="menu-label" data-i18n="settings.language">Language</p>
+          <div class="choices" data-setting="lang"></div>
+        </div>
+      </details>
     </div>
   </header>
 
-  <div id="banner" class="banner" hidden></div>
+  <div id="banner" class="banner" role="status" hidden></div>
 
   <main>
     <section class="cards">
       <article class="card" style="--accent: var(--volt)">
-        <h2>Voltage</h2>
+        <h2 data-i18n="card.voltage">Voltage</h2>
         <p class="big"><span id="v-now">–</span><small>V</small></p>
-        <p class="minmax">min <span id="v-min">–</span> · max <span id="v-max">–</span></p>
+        <p class="minmax"><span data-i18n="mm.min">min</span> <span id="v-min">–</span> · <span data-i18n="mm.max">max</span> <span id="v-max">–</span></p>
       </article>
       <article class="card" style="--accent: var(--amp)">
-        <h2>Current</h2>
+        <h2 data-i18n="card.current">Current</h2>
         <p class="big"><span id="i-now">–</span><small>A</small></p>
-        <p class="minmax">min <span id="i-min">–</span> · max <span id="i-max">–</span></p>
+        <p class="minmax"><span data-i18n="mm.min">min</span> <span id="i-min">–</span> · <span data-i18n="mm.max">max</span> <span id="i-max">–</span></p>
       </article>
       <article class="card" style="--accent: var(--watt)">
-        <h2>Power</h2>
+        <h2 data-i18n="card.power">Power</h2>
         <p class="big"><span id="p-now">–</span><small>W</small></p>
-        <p class="minmax">avg <span id="p-avg">–</span> · peak <span id="p-max">–</span></p>
+        <p class="minmax"><span data-i18n="mm.avg">avg</span> <span id="p-avg">–</span> · <span data-i18n="mm.peak">peak</span> <span id="p-max">–</span></p>
       </article>
       <article class="card" style="--accent: var(--energy)">
-        <h2>Session energy</h2>
+        <h2 data-i18n="card.energy">Session energy</h2>
         <p class="big"><span id="e-now">–</span><small id="e-unit">mWh</small></p>
-        <p class="minmax"><span id="c-now">–</span> · <span id="elapsed">00:00:00</span></p>
+        <p class="minmax"><span id="c-now">–</span> · <span id="elapsed">00:00</span></p>
       </article>
     </section>
 
     <section class="panel chart-panel">
       <div class="panel-head">
-        <h2>Live charts</h2>
-        <div class="seg" id="window-select" role="group" aria-label="Chart time window">
-          <button data-window="30">30 s</button>
-          <button data-window="120" class="on">2 min</button>
-          <button data-window="600">10 min</button>
-          <button data-window="3600">1 h</button>
-          <button data-window="0">All</button>
+        <h2 data-i18n="charts.title">Live charts</h2>
+        <div class="seg" id="window-select" role="group" aria-label="Chart time window" data-i18n-aria-label="charts.window">
+          <button data-window="30" data-i18n="win.30s">30 s</button>
+          <button data-window="120" data-i18n="win.2m" class="on">2 min</button>
+          <button data-window="600" data-i18n="win.10m">10 min</button>
+          <button data-window="3600" data-i18n="win.1h">1 h</button>
+          <button data-window="0" data-i18n="win.all">All</button>
         </div>
       </div>
       <div id="charts" class="charts">
-        <div class="chart" data-key="v"><span class="chart-label" style="color: var(--volt)">Voltage (V)</span><canvas></canvas></div>
-        <div class="chart" data-key="i"><span class="chart-label" style="color: var(--amp)">Current (A)</span><canvas></canvas></div>
-        <div class="chart" data-key="p"><span class="chart-label" style="color: var(--watt)">Power (W)</span><canvas></canvas></div>
+        <div class="chart" data-key="v"><span class="chart-label" style="--c: var(--volt)" data-i18n="chart.v">Voltage (V)</span><canvas></canvas></div>
+        <div class="chart" data-key="i"><span class="chart-label" style="--c: var(--amp)" data-i18n="chart.i">Current (A)</span><canvas></canvas></div>
+        <div class="chart" data-key="p"><span class="chart-label" style="--c: var(--watt)" data-i18n="chart.p">Power (W)</span><canvas></canvas></div>
         <div id="tooltip" class="tooltip" hidden></div>
       </div>
     </section>
 
     <section class="grid3">
       <article class="panel">
-        <div class="panel-head"><h2>Data lines</h2></div>
+        <div class="panel-head"><h2 data-i18n="lines.title">Data lines</h2></div>
         <table class="lines">
           <tbody>
             <tr><th>D+</th><td id="dp">–</td><td><div class="bar" style="--c: var(--data)"><i id="dp-bar"></i></div></td><td></td></tr>
@@ -83,33 +114,36 @@
             <tr><th>CC2</th><td id="cc2">–</td><td><div class="bar" style="--c: var(--cc)"><i id="cc2-bar"></i></div></td><td id="cc2-state" class="muted"></td></tr>
           </tbody>
         </table>
-        <p class="note">CC label = current advertised by the source (USB-C sink-side voltage ranges).</p>
+        <p class="note" data-i18n="lines.note">CC label = current advertised by the source (USB-C sink-side voltage ranges).</p>
       </article>
 
       <article class="panel">
         <div class="panel-head">
-          <h2>Session</h2>
-          <button id="btn-reset" class="small">Reset</button>
+          <h2 data-i18n="session.title">Session</h2>
+          <button id="btn-reset" class="small" data-i18n="btn.newSession">New session</button>
         </div>
         <dl class="stats">
-          <dt>Duration</dt><dd id="s-elapsed">–</dd>
-          <dt>Charge</dt><dd id="s-charge">–</dd>
-          <dt>Energy</dt><dd id="s-energy">–</dd>
-          <dt>Avg / peak power</dt><dd id="s-power">–</dd>
-          <dt>Voltage range</dt><dd id="s-vrange">–</dd>
-          <dt>Current range</dt><dd id="s-irange">–</dd>
-          <dt>Temperature (raw)</dt><dd id="s-temp">–</dd>
-          <dt>Phone power</dt><dd id="s-phone">–</dd>
-          <dt>Frames / rate</dt><dd id="s-frames">–</dd>
+          <dt data-i18n="stat.duration">Duration</dt><dd id="s-elapsed">–</dd>
+          <dt data-i18n="stat.charge">Charge</dt><dd id="s-charge">–</dd>
+          <dt data-i18n="stat.energy">Energy</dt><dd id="s-energy">–</dd>
+          <dt data-i18n="stat.power">Avg / peak power</dt><dd id="s-power">–</dd>
+          <dt data-i18n="stat.vrange">Voltage range</dt><dd id="s-vrange">–</dd>
+          <dt data-i18n="stat.irange">Current range</dt><dd id="s-irange">–</dd>
+          <dt data-i18n="stat.temp">Temperature (raw)</dt><dd id="s-temp">–</dd>
+          <dt data-i18n="stat.phone">Phone power</dt><dd id="s-phone">–</dd>
+          <dt data-i18n="stat.frames">Frames / rate</dt><dd id="s-frames">–</dd>
         </dl>
       </article>
 
       <article class="panel">
-        <div class="panel-head"><h2>CSV logging</h2><span id="rec-badge" class="badge" hidden>REC</span></div>
+        <div class="panel-head">
+          <h2 data-i18n="log.title">Log</h2>
+          <span id="log-state" class="pill"></span>
+        </div>
         <label class="field">
-          <span>Row interval</span>
-          <select id="rec-interval">
-            <option value="0">Every frame (~167/s)</option>
+          <span data-i18n="log.interval">Row interval</span>
+          <select id="log-interval">
+            <option value="0" data-i18n="log.everyFrame">Every frame (~167/s)</option>
             <option value="0.1">0.1 s</option>
             <option value="0.2" selected>0.2 s</option>
             <option value="0.5">0.5 s</option>
@@ -118,26 +152,32 @@
           </select>
         </label>
         <dl class="stats compact">
-          <dt>Rows</dt><dd id="rec-rows">0</dd>
-          <dt>Duration</dt><dd id="rec-time">–</dd>
-          <dt>Energy</dt><dd id="rec-energy">–</dd>
-          <dt>Size</dt><dd id="rec-size">0 KB</dd>
+          <dt data-i18n="log.rows">Rows</dt><dd id="log-rows">0</dd>
+          <dt data-i18n="log.size">Size</dt><dd id="log-size">0 KB</dd>
         </dl>
         <div class="row">
-          <button id="btn-rec" class="primary" disabled>Start recording</button>
-          <button id="btn-download" disabled>Download CSV</button>
-          <button id="btn-discard" class="small ghost" disabled>Discard</button>
+          <button id="btn-export" class="primary" data-i18n="btn.export" disabled>Export CSV</button>
+          <button id="btn-open" data-i18n="btn.open">Open CSV…</button>
+          <input id="file-open" type="file" accept=".csv,text/csv" hidden>
         </div>
-        <p class="note">Ah/Wh in the CSV count from when recording starts. Data stays in this tab until you download it.</p>
+        <p class="note" data-i18n="log.note">Everything since the session started is logged automatically.</p>
       </article>
     </section>
   </main>
 
-  <footer class="muted">
+  <footer class="muted" data-i18n="footer">
     Requires a Chromium browser with WebHID (Chrome, Edge, Opera on desktop).
   </footer>
 
+  <script src="i18n/i18n.js" defer></script>
+  <script src="i18n/en.js" defer></script>
+  <script src="i18n/vi.js" defer></script>
+  <script src="store.js" defer></script>
   <script src="protocol.js" defer></script>
+  <script src="format.js" defer></script>
+  <script src="history.js" defer></script>
+  <script src="charts.js" defer></script>
+  <script src="log.js" defer></script>
   <script src="app.js" defer></script>
 </body>
 </html>

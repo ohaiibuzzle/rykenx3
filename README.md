@@ -10,13 +10,18 @@ description, a browser dashboard/logger, and Python tools.
 | Path | What it is |
 |---|---|
 | [`PROTOCOL.md`](PROTOCOL.md) | USB HID protocol: frame format, CRC, handshake, commands, data frames |
-| [`web/`](web/) | Browser app (WebHID): live readings, charts, session stats, CSV logging |
+| [`web/`](web/) | Browser app (WebHID): live readings, charts, session stats, always-on CSV log |
 | [`python/`](python/) | `ryken.py` (CLI logger and log reader) and `dashboard.py` (terminal dashboard) |
 
 ## Web app
 
 Open the link above in **Chrome, Edge or Opera on a desktop computer**, plug in the
 meter and click **Connect meter**. Everything runs locally in the browser.
+
+- Every session is logged automatically from the moment you connect; **Export CSV** saves it
+  and **New session** starts over. The log is also kept in the browser, so after a crash or
+  reload the page offers to restore or export the unsaved session.
+- **Open CSV…** loads an exported log back into the charts and stats for review.
 
 To run it locally (WebHID needs `https://` or `localhost`):
 
