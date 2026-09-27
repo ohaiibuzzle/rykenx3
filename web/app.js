@@ -56,6 +56,7 @@ const session = {
     this.pending = []; // rows not yet written to the Store
     this.bytes = 0;
     this.lastRowT = -Infinity;
+    this.recording = true; // when off, frames still feed the stats and charts but no rows are kept
     this.exported = true; // nothing to lose yet
     this.device = '';
     this.source = null; // {name} of an opened CSV or {key} for a restored session
@@ -99,6 +100,7 @@ function onMeasurement(e) {
 }
 
 function logRow(t, s) {
+  if (!session.recording) return;
   if (state.interval && t - session.lastRowT < state.interval * 1000) return;
   session.lastRowT = t;
   const row = [
@@ -327,6 +329,8 @@ function render() {
   $('log-state').className = 'pill ' + logState;
   $('log-state').textContent = t('log.' + logState);
   $('btn-export').disabled = !n;
+  $('log-recording').checked = session.recording;
+  $('log-recording-label').textContent = t(session.recording ? 'log.recording' : 'log.paused');
 
   drawCharts(now);
 }
@@ -397,6 +401,11 @@ $('file-open').addEventListener('change', (e) => {
   const file = e.target.files[0];
   e.target.value = '';
   if (file) openCsv(file);
+});
+$('log-recording').addEventListener('change', (e) => {
+  if (e.target.checked && !session.recording) session.lastRowT = -Infinity; // log the next frame right away
+  session.recording = e.target.checked;
+  render();
 });
 $('log-interval').addEventListener('change', (e) => {
   state.interval = Number(e.target.value);

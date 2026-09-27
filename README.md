@@ -10,16 +10,17 @@ description, a browser dashboard/logger, and Python tools.
 | Path | What it is |
 |---|---|
 | [`PROTOCOL.md`](PROTOCOL.md) | USB HID protocol: frame format, CRC, handshake, commands, data frames |
-| [`web/`](web/) | Browser app (WebHID): live readings, charts, session stats, always-on CSV log |
+| [`web/`](web/) | Browser app (WebHID): live readings, charts, session stats, pausable CSV log |
 | [`python/`](python/) | `ryken.py` (CLI logger and log reader) and `dashboard.py` (terminal dashboard) |
+| [`android/`](android/) | Native Android app (Kotlin, Jetpack Compose, USB host API) |
 
 ## Web app
 
 Open the link above in **Chrome, Edge or Opera on a desktop computer**, plug in the
 meter and click **Connect meter**. Everything runs locally in the browser.
 
-- Every session is logged automatically from the moment you connect; **Export CSV** saves it
-  and **New session** starts over. The log is also kept in the browser, so after a crash or
+- Every session is logged from the moment you connect (use the **Recording** switch to pause);
+  **Export CSV** saves it and **New session** starts over. The log is also kept in the browser, so after a crash or
   reload the page offers to restore or export the unsaved session.
 - **Open CSV…** loads an exported log back into the charts and stats for review.
 
@@ -28,6 +29,13 @@ To run it locally (WebHID needs `https://` or `localhost`):
 ```sh
 python3 -m http.server -d web 8000   # then open http://localhost:8000
 ```
+
+## Android app
+
+Plug the meter into the phone (through a USB-C OTG adapter if needed). Android offers
+to open the app and grant it access to the meter; tap **Connect** otherwise.
+
+It should provides you with the same tools that the WebHID tooling has
 
 ## Python tools
 

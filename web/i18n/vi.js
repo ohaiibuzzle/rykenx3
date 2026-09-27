@@ -68,6 +68,8 @@ I18n.register('vi', 'Tiếng Việt', {
   'stat.na': 'không có',
 
   'log.title': 'Nhật ký',
+  'log.recording': 'Đang ghi',
+  'log.paused': 'Đã tạm dừng ghi',
   'log.interval': 'Chu kỳ ghi',
   'log.everyFrame': 'Mỗi khung (~167/giây)',
   'log.rows': 'Số dòng',
@@ -77,8 +79,9 @@ I18n.register('vi', 'Tiếng Việt', {
   'log.unexported': 'Chưa xuất',
   'btn.export': 'Xuất CSV',
   'btn.open': 'Mở CSV…',
-  'log.note': 'Mọi dữ liệu từ đầu phiên được ghi tự động và lưu trong trình duyệt này cho đến khi bạn '
-    + 'bắt đầu phiên mới. Ah/Wh trong CSV được tính từ đầu phiên.',
+  'log.note': 'Dữ liệu chỉ được ghi khi bật ghi và được lưu trong trình duyệt này cho đến khi bạn '
+    + 'bắt đầu phiên mới; mỗi phiên mới đều tự bật ghi. Ah/Wh trong CSV được tính từ đầu phiên, '
+    + 'kể cả khi tạm dừng.',
 
   'confirm.discard': 'Bỏ {n} dòng chưa xuất?',
 

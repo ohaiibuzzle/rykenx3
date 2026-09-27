@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- RYKEN RK-X3: 2E3C:AF03 -->
+    <usb-device vendor-id="11836" product-id="44803" />
+</resources>

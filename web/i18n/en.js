@@ -68,6 +68,8 @@ I18n.register('en', 'English', {
   'stat.na': 'n/a',
 
   'log.title': 'Log',
+  'log.recording': 'Recording',
+  'log.paused': 'Recording paused',
   'log.interval': 'Row interval',
   'log.everyFrame': 'Every frame (~167/s)',
   'log.rows': 'Rows',
@@ -77,8 +79,9 @@ I18n.register('en', 'English', {
   'log.unexported': 'Not exported',
   'btn.export': 'Export CSV',
   'btn.open': 'Open CSV…',
-  'log.note': 'Everything since the session started is logged automatically and kept in this browser '
-    + 'until you start a new session. Ah/Wh in the CSV count from the session start.',
+  'log.note': 'Rows are logged while recording is on and kept in this browser until you start a new '
+    + 'session; each new session starts recording. Ah/Wh in the CSV count from the session start, '
+    + 'including paused periods.',
 
   'confirm.discard': 'Discard {n} unexported rows?',
 

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">RK-X3 Meter</string>
+
+    <string name="device_none">Not connected</string>
+    <string name="status_idle">Idle</string>
+    <string name="status_connecting">Connecting…</string>
+    <string name="status_not_connected">Not connected</string>
+    <string name="status_disconnected">Disconnected</string>
+    <string name="status_unplugged">Unplugged</string>
+    <string name="status_waiting">Waiting for data…</string>
+    <string name="status_live">Live · %1$d fps</string>
+    <string name="btn_connect">Connect</string>
+    <string name="btn_disconnect">Disconnect</string>
+
+    <string name="tab_live">Live</string>
+    <string name="tab_charts">Charts</string>
+    <string name="tab_session">Session</string>
+
+    <string name="card_voltage">Voltage</string>
+    <string name="card_current">Current</string>
+    <string name="card_power">Power</string>
+    <string name="card_energy">Session energy</string>
+    <string name="mm_min_max">min %1$s · max %2$s</string>
+    <string name="mm_avg_peak">avg %1$s · peak %2$s</string>
+
+    <string name="charts_window">Chart time window</string>
+    <string name="win_30s">30 s</string>
+    <string name="win_2m">2 min</string>
+    <string name="win_10m">10 min</string>
+    <string name="win_1h">1 h</string>
+    <string name="win_all">All</string>
+    <string name="chart_v">Voltage (V)</string>
+    <string name="chart_i">Current (A)</string>
+    <string name="chart_p">Power (W)</string>
+    <string name="charts_hint">Touch and drag a chart to read values.</string>
+
+    <string name="lines_title">Data lines</string>
+    <string name="lines_note">CC label = current advertised by the source (USB-C sink-side voltage ranges).</string>
+    <string name="cc_open">open</string>
+    <string name="cc_default">USB default</string>
+
+    <string name="session_title">Session</string>
+    <string name="btn_new_session">New session</string>
+    <string name="stat_duration">Duration</string>
+    <string name="stat_charge">Charge</string>
+    <string name="stat_energy">Energy</string>
+    <string name="stat_power">Avg / peak power</string>
+    <string name="stat_vrange">Voltage range</string>
+    <string name="stat_irange">Current range</string>
+    <string name="stat_temp">Temperature (raw)</string>
+    <string name="stat_phone">Phone power</string>
+    <string name="stat_frames">Frames / rate</string>
+    <string name="stat_na">n/a</string>
+
+    <string name="log_title">Log</string>
+    <string name="log_recording">Recording</string>
+    <string name="log_paused">Recording paused</string>
+    <string name="log_interval">Row interval</string>
+    <string name="log_every_frame">Every frame (~167/s)</string>
+    <string name="log_seconds">%1$s s</string>
+    <string name="log_rows">Rows</string>
+    <string name="log_size">Size</string>
+    <string name="log_empty">Empty</string>
+    <string name="log_exported">Exported</string>
+    <string name="log_unexported">Not exported</string>
+    <string name="btn_export">Export CSV</string>
+    <string name="btn_share">Share</string>
+    <string name="log_note">Rows are logged only while recording is on, also in the background; each new session starts paused. Ah/Wh in the CSV count from the session start, including paused periods.</string>
+    <string name="export_done">Log exported</string>
+    <string name="export_failed">Could not write the file</string>
+
+    <string name="confirm_discard_title">Discard log?</string>
+    <string name="confirm_discard">%1$s rows have not been exported and will be lost.</string>
+    <string name="btn_discard">Discard</string>
+    <string name="btn_cancel">Cancel</string>
+
+    <string name="btn_take_over">Take over</string>
+    <string name="err_no_device">No meter found. Plug the RK-X3 in (with a USB-C OTG adapter if needed).</string>
+    <string name="err_permission">USB access to the meter was denied.</string>
+    <string name="err_open">Could not open the meter.</string>
+    <string name="err_no_answer">The meter did not answer the handshake.</string>
+    <string name="err_in_use">The meter is in use by another program, or a previous session did not disconnect cleanly.</string>
+    <string name="err_signature">Handshake signature mismatch.</string>
+
+    <string name="notif_channel">Meter connection</string>
+</resources>

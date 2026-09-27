@@ -141,6 +141,10 @@
           <span id="log-state" class="pill"></span>
         </div>
         <label class="field">
+          <span id="log-recording-label" data-i18n="log.recording">Recording</span>
+          <input id="log-recording" type="checkbox" class="switch" checked>
+        </label>
+        <label class="field">
           <span data-i18n="log.interval">Row interval</span>
           <select id="log-interval">
             <option value="0" data-i18n="log.everyFrame">Every frame (~167/s)</option>
@@ -160,7 +164,7 @@
           <button id="btn-open" data-i18n="btn.open">Open CSV…</button>
           <input id="file-open" type="file" accept=".csv,text/csv" hidden>
         </div>
-        <p class="note" data-i18n="log.note">Everything since the session started is logged automatically.</p>
+        <p class="note" data-i18n="log.note">Rows are logged while recording is on.</p>
       </article>
     </section>
   </main>

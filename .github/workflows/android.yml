@@ -1,0 +1,96 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "android/**"
+      - ".github/workflows/android.yml"
+  pull_request:
+    paths:
+      - "android/**"
+      - ".github/workflows/android.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android
+    # Pull requests (including forks) have no access to the signing secrets.
+    env:
+      SIGN: ${{ github.event_name != 'pull_request' }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "25" # gradle/gradle-daemon-jvm.properties
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      - name: Set up signing key
+        if: env.SIGN == 'true'
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          missing=()
+          for name in KEYSTORE_BASE64 KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
+            [ -n "${!name}" ] || missing+=("ANDROID_$name")
+          done
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::error::Missing repository secrets: ${missing[*]}"
+            exit 1
+          fi
+          keystore="$RUNNER_TEMP/release.jks"
+          echo "$KEYSTORE_BASE64" | base64 --decode > "$keystore"
+          {
+            echo "RYKEN_KEYSTORE=$keystore"
+            echo "RYKEN_KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD"
+            echo "RYKEN_KEY_ALIAS=$KEY_ALIAS"
+            echo "RYKEN_KEY_PASSWORD=$KEY_PASSWORD"
+          } >> "$GITHUB_ENV"
+
+      - name: Version
+        id: version
+        run: |
+          base=$(grep -oP 'versionName = .*\?: "\K[^"]+' app/build.gradle.kts)
+          echo "code=${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+          echo "name=$base-$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Test and build
+        run: >
+          ./gradlew testDebugUnitTest assembleRelease
+          -PversionCode=${{ steps.version.outputs.code }}
+          -PversionName=${{ steps.version.outputs.name }}
+
+      - name: Verify signature
+        if: env.SIGN == 'true'
+        run: |
+          apksigner=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)apksigner
+          apk="$RUNNER_TEMP/rykenx3-${{ steps.version.outputs.name }}.apk"
+          cp app/build/outputs/apk/release/app-release.apk "$apk"
+          "$apksigner" verify --verbose --print-certs "$apk"
+
+      - uses: actions/upload-artifact@v7
+        if: env.SIGN == 'true'
+        with:
+          name: rykenx3-${{ steps.version.outputs.name }}
+          path: ${{ runner.temp }}/rykenx3-${{ steps.version.outputs.name }}.apk
+          if-no-files-found: error
+
+      - name: Remove signing key
+        if: always() && env.SIGN == 'true'
+        run: rm -f "$RUNNER_TEMP/release.jks"
